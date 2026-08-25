@@ -4,7 +4,7 @@ export const ProtectedRoute = () => {
   const token = localStorage.getItem('token'); 
 
   if (!token) {
-    return <Navigate to="/register" replace />;
+    return <Navigate to="/registration" replace />;
   }
 
   return <Outlet />;

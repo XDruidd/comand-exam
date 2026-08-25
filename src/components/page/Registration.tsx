@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Button, Grid, TextField, Typography } from "@mui/material"; 
 import { Link, useNavigate } from "react-router"; 
-import { loginUser, registerUser } from "../../api/auth";
+import { registerUser } from "../../api/auth";
 import type { RegisterInput } from "../../Interface/auth";
 
 export default function Registration() {
@@ -36,14 +36,9 @@ export default function Registration() {
 
         try {
             const full_data : RegisterInput = Object.fromEntries(data)
-            await registerUser(full_data);
+            const register = await registerUser(full_data);
 
-            const loginResult = await loginUser({
-                email: full_data.email,
-                password: full_data.password
-            });     
-
-            if (loginResult.token) {
+            if (register.token) {
                 navigate("/");
             }
 
@@ -69,7 +64,7 @@ export default function Registration() {
                     '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: 'gray', borderWidth: '1px' }, 
                     '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'grey', color: "#F8FAFC"  }, 
                     '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'purple', borderWidth: '2px', color: "#F8FAFC" }, 
-                    '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'red', },
+                    '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'red' },
                     '& .MuiFormHelperText-root.Mui-error': { color: 'red' },
                     '& .MuiOutlinedInput-:roothover .MuiOutlinedInput-notchedOutline': { borderColor: 'grey', color: "#F8FAFC",},
                     '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline legend': {backgroundColor: '#141e34', },
@@ -80,7 +75,7 @@ export default function Registration() {
                         WebkitTextFillColor: "#F8FAFC",
                         caretColor: "#F8FAFC",
                         transition: "background-color 5000s ease-in-out 0s",
-                    },                
+                    },              
                     }}
                 > 
                 

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import type { LoginResponse, RegisterInput, RegisterResponse, UserMeResponse } from "../Interface/auth";
 import BASE_URL from "./href";
 
@@ -6,7 +7,7 @@ import BASE_URL from "./href";
  */
 export async function registerUser(userData: RegisterInput): Promise<RegisterResponse> {
   try {
-    const response = await fetch(`${BASE_URL}/register`, {
+    const response = await fetch(`${BASE_URL}auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -16,9 +17,11 @@ export async function registerUser(userData: RegisterInput): Promise<RegisterRes
 
     const result: RegisterResponse = await response.json();
 
-    if (!response.ok) {
-      throw new Error(result.message || `Ошибка регистрации: ${response.status}`);
+    if (!response.ok || !result.token) {
+      throw new Error(result.error || `Ошибка регистрации: ${response.status}`);
     }
+
+    localStorage.setItem("token", result.token)
 
     return result;
   } catch (error) {
@@ -32,7 +35,7 @@ export async function registerUser(userData: RegisterInput): Promise<RegisterRes
  */
 export async function loginUser(loginData: { email?: string; password?: string }): Promise<LoginResponse> {
   try {
-    const response = await fetch(`${BASE_URL}/login`, {
+    const response = await fetch(`${BASE_URL}auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +46,7 @@ export async function loginUser(loginData: { email?: string; password?: string }
     const result: LoginResponse = await response.json();
 
     if (!response.ok || !result.token) {
-      throw new Error(result.message || `Ошибка авторизации: ${response.status}`);
+      throw new Error(result.error || `Ошибка авторизации: ${response.status}`);
     }
 
     localStorage.setItem("token", result.token)
@@ -55,15 +58,22 @@ export async function loginUser(loginData: { email?: string; password?: string }
   }
 }
 
-export async function getMe(token: string): Promise<UserMeResponse> {
+export async function getMe(): Promise<UserMeResponse> {
   try {
-    const response = await fetch(`${BASE_URL}/me`, {
+    const token = localStorage.getItem("token") 
+
+    const response = await fetch(`${BASE_URL}auth/me`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
+
+    if(response.status == 401){
+      const navigate = useNavigate();
+      navigate("/registration")
+    }
 
     if (!response.ok) {
       throw new Error(`Не удалось получить профиль: ${response.status}`);
