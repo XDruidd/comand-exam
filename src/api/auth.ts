@@ -1,6 +1,31 @@
-import { useNavigate } from "react-router";
 import type { LoginResponse, RegisterInput, RegisterResponse, UserMeResponse } from "../Interface/auth";
 import BASE_URL from "./href";
+
+export class AuthApiError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "AuthApiError";
+    this.status = status;
+  }
+}
+
+function getErrorMessage(payload: unknown): string | undefined {
+  if (typeof payload !== "object" || payload === null) {
+    return undefined;
+  }
+
+  if ("error" in payload && typeof payload.error === "string") {
+    return payload.error;
+  }
+
+  if ("detail" in payload && typeof payload.detail === "string") {
+    return payload.detail;
+  }
+
+  return undefined;
+}
 
 /**
  * Регистрация нового пользователя
@@ -58,30 +83,40 @@ export async function loginUser(loginData: { email?: string; password?: string }
   }
 }
 
-export async function getMe(): Promise<UserMeResponse> {
-  try {
-    const token = localStorage.getItem("token") 
+export async function getMe(signal?: AbortSignal): Promise<UserMeResponse> {
+  const token = localStorage.getItem("token");
 
-    const response = await fetch(`${BASE_URL}auth/me`, {
+  if (!token) {
+    throw new AuthApiError("Требуется авторизация", 401);
+  }
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${BASE_URL}auth/me`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
+      signal,
     });
-
-    if(response.status == 401){
-      const navigate = useNavigate();
-      navigate("/registration")
-    }
-
-    if (!response.ok) {
-      throw new Error(`Не удалось получить профиль: ${response.status}`);
-    }
-
-    return await response.json();
   } catch (error) {
-    console.error("Ошибка в getMe API:", error);
-    throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw error;
+    }
+
+    throw new AuthApiError("Не удалось подключиться к серверу", 0);
   }
+
+  const payload: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new AuthApiError(
+      getErrorMessage(payload) ?? `Не удалось получить профиль: ${response.status}`,
+      response.status,
+    );
+  }
+
+  return payload as UserMeResponse;
 }
