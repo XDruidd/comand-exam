@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Login from "./page/Login" 
 import Registration from './page/Registration';
 import ProfileHref from './page/ProfileHref';
+import { Box } from '@mui/material';
 
 function App() {
   
