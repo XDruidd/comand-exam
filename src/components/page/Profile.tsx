@@ -119,9 +119,22 @@ export default function Profile() {
                             <Typography>{user.phone}</Typography>
                         </Stack>
                     </Stack>
-                    <Typography sx={{ fontSize: "14px", cursor: "pointer", color: "#ef4444", fontWeight: "bold" }} onClick={Close}>
-                        Log out
-                    </Typography>
+                    <Stack spacing="4px" sx={{ alignItems: "flex-end" }}>
+                        {user.role === "ADMIN" && (
+                            <Button
+                                component={Link}
+                                to="/admin"
+                                size="small"
+                                variant="outlined"
+                                sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: "11px", textTransform: "none" }}
+                            >
+                                Admin Panel
+                            </Button>
+                        )}
+                        <Typography sx={{ fontSize: "14px", cursor: "pointer", color: "#ef4444", fontWeight: "bold" }} onClick={Close}>
+                            Log out
+                        </Typography>
+                    </Stack>
                 </Box>
 
                 <Box sx={{ mt: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>

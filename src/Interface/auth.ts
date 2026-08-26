@@ -1,3 +1,5 @@
+export type UserRole = "USER" | "ADMIN";
+
 export interface RegisterInput {
   email?: string;
   password?: string;
@@ -12,7 +14,7 @@ export interface UserResponseData {
   surname: string;
   email: string;
   phone: string;
-  role: string;
+  role: UserRole;
   balance: number;
 }
 
@@ -36,5 +38,6 @@ export interface UserMeResponse {
   surname: string;
   email: string;
   phone: string;
+  role: UserRole;
   balance: number;
 }
