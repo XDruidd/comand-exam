@@ -6,6 +6,6 @@ export const ProtectedRoute = () => {
   if (!token) {
     return <Navigate to="/registration" replace />;
   }
-
+  
   return <Outlet />;
 };

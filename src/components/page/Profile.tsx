@@ -4,10 +4,14 @@ import { getMe } from "../../api/auth";
 import { getBalance, depositMoney, withdrawMoney, transferMoney } from "../../api/wallet";
 import type { UserMeResponse } from "../../Interface/auth";
 import { useNavigate } from "react-router";
+import { getTransactionsHistory } from "../../api/transactions";
+import type { TransactionItem } from "../../Interface/ITransfer";
+import {Link} from "react-router"
 
 export default function Profile() {
     const [user, setUser] = useState<UserMeResponse>();
     const [balance, setBalance] = useState<number>(0);
+    const [transactions, setTransactions] = useState<TransactionItem[]>([]); // Масив транзакцій
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -15,28 +19,48 @@ export default function Profile() {
     const [amount, setAmount] = useState<string>("");
     const [email, setEmail] = useState<string>("");
 
-    const refreshBalance = async () => {
+    // Функція швидкого оновлення балансу та історії (пінг бекенду)
+    const refreshWalletData = async () => {
         try {
-            const data = await getBalance();
-            setBalance(data.balance);
+            const [wallet, txHistory] = await Promise.all([
+                getBalance(),
+                getTransactionsHistory()
+            ]);
+            setBalance(wallet.balance);
+            setTransactions(txHistory.transactions);
+            console.log("Дані гаманця та транзакцій успішно оновлено");
         } catch (error) {
-            console.error("Не вдалося оновити баланс:", error);
+            console.error("Не вдалося синхронізувати дані:", error);
         }
     };
 
+    // Первинне завантаження профілю при відкритті сторінки
     useEffect(() => {
-        const fetchProfileData = async () => {
+        const fetchInitialData = async () => {
             try {
-                const [me, wallet] = await Promise.all([getMe(), getBalance()]);
+                const [me, wallet, txHistory] = await Promise.all([
+                    getMe(),
+                    getBalance(),
+                    getTransactionsHistory()
+                ]);
                 setUser(me);
                 setBalance(wallet.balance);
+                setTransactions(txHistory.transactions);
             } catch (error) {
                 console.error("Не вдалося завантажити профіль або баланс:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchProfileData();
+        fetchInitialData();
+    }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refreshWalletData();
+        }, 60000);
+
+        return () => clearInterval(interval);
     }, []);
 
     function Close() {
@@ -50,7 +74,6 @@ export default function Profile() {
         setEmail("");
     };
 
-    // Опрацювання фінансових операцій
     const handleAction = async () => {
         const numAmount = parseFloat(amount);
         if (isNaN(numAmount) || numAmount <= 0) return alert("Введіть коректну суму");
@@ -64,12 +87,15 @@ export default function Profile() {
                 if (!email) return alert("Введіть email отримувача");
                 await transferMoney(numAmount, email);
             }
-            await refreshBalance(); // Оновлюємо цифру балансу на екрані
+            
+            await refreshWalletData(); 
             handleCloseModal();
-        } catch (error) {
-            alert("Операція відхилена. Перевірте баланс або дані.");
+        } catch (error: any) {
+            alert(error.message || "Операція відхилена. Перевірте баланс або дані.");
         }
     };
+
+
 
     if (loading || !user) {
         return (
@@ -80,21 +106,7 @@ export default function Profile() {
     }
 
     return (
-        <Box 
-            sx={{
-                border: "1px solid #F8FAFC",
-                borderRadius: "20px",
-                maxWidth: "350px",
-                height: "600px",
-                m: { lg: "50px", md: "20px", xs: 0 },
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                padding: "20px",
-                boxSizing: "border-box",
-                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)"
-            }}
-        >
+        <Box>
             <Box sx={{ width: "100%" }}>   
                 <Box sx={{ display: "flex", textWrap: "nowrap", alignItems: "center", justifyContent: "space-between" }}>
                     <Stack spacing={"10px"} sx={{ "& .MuiTypography-root": { fontSize: "13px" }}}>
@@ -117,20 +129,90 @@ export default function Profile() {
                         {balance} $
                     </Typography>
                 </Box>
+                <Stack spacing="12px" direction={"row"} 
+                    sx={{
+                        width: "100%",
+                        mb: "20px",
+                        mt: "40px",
+                        "& .MuiButtonBase-root":{
+                            height: "42px"
+                        }
+                    }}
+                >
+                    <Button variant="contained" fullWidth sx={{ borderRadius: "12px", textTransform: "none" }} onClick={() => setActiveModal("deposit")}>
+                        Deposit
+                    </Button>
+                    <Button variant="outlined" fullWidth sx={{ borderRadius: "12px", textTransform: "none" }} onClick={() => setActiveModal("withdraw")}>
+                        Withdraw
+                    </Button>
+                    <Button variant="text" fullWidth sx={{ borderRadius: "12px", textTransform: "none" }} onClick={() => setActiveModal("transfer")}>
+                        Transfer
+                    </Button>
+                </Stack>
+                <Box sx={{mt: "20px"}}>
+                    <Typography sx={{fontSize: "20px"}}>History</Typography>
+                    <Box>
+                        {
+                            transactions.length == 0 ? 
+                            (
+                                <Box sx={{display: "flex", justifyContent: "center",}}>
+                                    <Typography>No transaction</Typography>
+                                </Box>
+                            )
+                            :
+                            (
+                                <Stack spacing={"10px"} 
+                                    sx={{
+                                        mt: "20px",
+                                        maxHeight: "240px",
+                                        overflowY: "auto",
+                                        paddingRight: "4px",
+                                        
+                                        "&::-webkit-scrollbar": {
+                                            width: "5px",
+                                        },
+                                        "&::-webkit-scrollbar-track": {
+                                            background: "transparent",
+                                        },
+                                        "&::-webkit-scrollbar-thumb": {
+                                            background: "#cbd5e1", 
+                                            borderRadius: "10px",
+                                        },
+                                        "&::-webkit-scrollbar-thumb:hover": {
+                                            background: "#94a3b8",
+                                        },
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "#cbd5e1 transparent",
+                                    }}
+                                >
+                                    {transactions.map((item) => (
+                                        <Box 
+                                            component={Link}
+                                            to={`transaction/${item.id}`}
+                                            sx={{
+                                                textDecoration: "none",
+                                                color:"#F8FAFC",
+                                                justifyContent: "space-between",
+                                                display: "flex"
+                                            }}
+                                        >
+                                            <Box>
+                                                <Typography sx={{fontSize: "14px"}}>{item.type}</Typography>
+                                                <Typography sx={{fontSize: "11px"}}>{item.sender?.name} {item.sender?.surname}</Typography>
+                                            </Box>
+                                            <Box>
+                                                <Typography>
+                                                    {item.type == "DEPOSIT" || item.receiver?.email == user.email  ? "+" : "-" }{item.amount} USD
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            )
+                        }
+                    </Box>
+                </Box>
             </Box>
-
-            <Stack spacing="12px" sx={{ width: "100%", mb: "20px" }}>
-                <Button variant="contained" fullWidth sx={{ borderRadius: "12px", textTransform: "none" }} onClick={() => setActiveModal("deposit")}>
-                    Deposit
-                </Button>
-                <Button variant="outlined" fullWidth sx={{ borderRadius: "12px", textTransform: "none" }} onClick={() => setActiveModal("withdraw")}>
-                    Withdraw
-                </Button>
-                <Button variant="text" fullWidth sx={{ borderRadius: "12px", textTransform: "none" }} onClick={() => setActiveModal("transfer")}>
-                    Transfer money
-                </Button>
-            </Stack>
-
             <Dialog open={activeModal !== null} onClose={handleCloseModal} fullWidth maxWidth="xs" >
                 <DialogTitle sx={{ pb: 1 }}>
                     {activeModal === "deposit" && "Поповнити баланс"}

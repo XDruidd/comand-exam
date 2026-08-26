@@ -3,7 +3,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { useEffect } from 'react';
 import Login from "./page/Login" 
 import Registration from './page/Registration';
-import Profile from './page/Profile';
+import ProfileHref from './page/ProfileHref';
 
 function App() {
   
@@ -26,7 +26,7 @@ function App() {
         <Route path="/registration" element={<Registration />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Profile />} />
+          <Route path="/*" element={<ProfileHref />} />
         </Route>
       </Routes>
     </BrowserRouter>
