@@ -65,20 +65,22 @@ export default function Login() {
 
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}> 
                     <Grid container spacing={2} sx={{ 
-                        "& .MuiFormLabel-root, & *": { color: "#F8FAFC" }, 
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: 'gray', borderWidth: '1px' }, 
-                        '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'grey', color: "#F8FAFC" }, 
-                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'purple', borderWidth: '2px', color: "#F8FAFC" }, 
-                        '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'red' },
-                        '& .MuiFormHelperText-root.Mui-error': { color: 'red' },
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline legend': { backgroundColor: '#141e34' },
-                        "& input:-webkit-autofill": {
-                            color: "#F8FAFC",
-                            WebkitBoxShadow: "0 0 0 1000px #141e34 inset",
-                            WebkitTextFillColor: "#F8FAFC",
-                            caretColor: "#F8FAFC",
-                            transition: "background-color 5000s ease-in-out 0s",
-                        },     
+                        "& .MuiFormLabel-root, & *": { color: "#F8FAFC !important" }, 
+                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#F8FAFC !important', borderWidth: '1px !important' }, 
+                        '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#F8FAFC !important', color: "#F8FAFC !important" }, 
+                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#F8FAFC !important', borderWidth: '2px !important', color: "#F8FAFC !important" }, 
+                        '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'red !important' }, 
+                        '& .MuiFormHelperText-root.Mui-error': { color: 'red !important' }, 
+                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline legend': { backgroundColor: '#141e34 !important' }, 
+                        "& input:-webkit-autofill": { 
+                            color: "#F8FAFC !important", 
+                            WebkitBoxShadow: "0 0 0 1000px #141e34 inset !important", 
+                            WebkitTextFillColor: "#F8FAFC !important", 
+                            caretColor: "#F8FAFC !important", 
+                            transition: "background-color 5000s ease-in-out 0s !important" 
+                        },
+
+
                     }}> 
                         
                         <Grid size={12}> 

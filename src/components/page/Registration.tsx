@@ -9,22 +9,38 @@ export default function Registration() {
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false); 
     const navigate = useNavigate();
-    
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         
         const newErrors: { [key: string]: string } = {};
 
-        // Список обязательных полей для проверки
         const requiredFields = ["name", "surname", "email", "phone", "password"];
 
         requiredFields.forEach((field) => {
-        const value = data.get(field) as string;
-        if (!value || !value.trim()) {
-            newErrors[field] = "Это поле обязательно для заполнения";
-        }
+            const value = data.get(field) as string;
+            if (!value || !value.trim()) {
+                newErrors[field] = "Importman Data";
+            }
         });
+
+        const email = (data.get("email") as string || "").trim();
+        const phone = (data.get("phone") as string || "").trim();
+
+        if (email && !newErrors.email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                newErrors.email = "not corect email";
+            }
+        }
+
+        if (phone && !newErrors.phone) {
+            const phoneRegex = /^\+?[0-9]{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+                newErrors.phone = "not valid number (example - +380XXXXXXXXX)";
+            }
+        }
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -35,16 +51,16 @@ export default function Registration() {
         setIsSubmitting(true);
 
         try {
-            const full_data : RegisterInput = Object.fromEntries(data)
+            const full_data : RegisterInput = Object.fromEntries(data) as any;
             const register = await registerUser(full_data);
 
             if (register.token) {
                 navigate("/");
             }
-
         }
         catch (error: any) {
-            console.error(error.message || "Произошла непредвиденная ошибка");
+            console.error(error.message || "eror");
+            setErrors({ server: error.message || "eror register" });
         } 
         finally {
             setIsSubmitting(false); 
@@ -60,22 +76,20 @@ export default function Registration() {
 
                 <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}> 
                 <Grid container spacing={2} sx={{ 
-                    "& .MuiFormLabel-root, & *": { color: "#F8FAFC" }, 
-                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: 'gray', borderWidth: '1px' }, 
-                    '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'grey', color: "#F8FAFC"  }, 
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'purple', borderWidth: '2px', color: "#F8FAFC" }, 
-                    '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'red' },
-                    '& .MuiFormHelperText-root.Mui-error': { color: 'red' },
-                    '& .MuiOutlinedInput-:roothover .MuiOutlinedInput-notchedOutline': { borderColor: 'grey', color: "#F8FAFC",},
-                    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline legend': {backgroundColor: '#141e34', },
-                    "& .MuiOutlinedInput-root": {backgroundColor: "#141e34",},
-                    "& input:-webkit-autofill": {
-                        color: "#F8FAFC",
-                        WebkitBoxShadow: "0 0 0 1000px #141e34 inset",
-                        WebkitTextFillColor: "#F8FAFC",
-                        caretColor: "#F8FAFC",
-                        transition: "background-color 5000s ease-in-out 0s",
-                    },              
+                        "& .MuiFormLabel-root, & *": { color: "#F8FAFC !important" }, 
+                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: '#F8FAFC !important', borderWidth: '1px !important' }, 
+                        '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#F8FAFC !important', color: "#F8FAFC !important" }, 
+                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#F8FAFC !important', borderWidth: '2px !important', color: "#F8FAFC !important" }, 
+                        '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': { borderColor: 'red !important' }, 
+                        '& .MuiFormHelperText-root.Mui-error': { color: 'red !important' }, 
+                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline legend': { backgroundColor: '#141e34 !important' }, 
+                        "& input:-webkit-autofill": { 
+                            color: "#F8FAFC !important", 
+                            WebkitBoxShadow: "0 0 0 1000px #141e34 inset !important", 
+                            WebkitTextFillColor: "#F8FAFC !important", 
+                            caretColor: "#F8FAFC !important", 
+                            transition: "background-color 5000s ease-in-out 0s !important" 
+                        },           
                     }}
                 > 
                 
