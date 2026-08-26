@@ -185,8 +185,9 @@ export default function Profile() {
                                         scrollbarColor: "#cbd5e1 transparent",
                                     }}
                                 >
-                                    {transactions.map((item) => (
+                                    {transactions.map((item, index) => (
                                         <Box 
+                                            key={index}
                                             component={Link}
                                             to={`transaction/${item.id}`}
                                             sx={{

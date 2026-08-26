@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { Route, Routes } from "react-router";
 import Profile from "./Profile";
+import Transaction from "./Transaction";
 
 export default function ProfileHref(){
     return(
@@ -21,7 +22,7 @@ export default function ProfileHref(){
         >
             <Routes>
                 <Route path="/" element={<Profile />} />
-                <Route path="/transaction/:id" element={<Profile />} />
+                <Route path="/transaction/:id" element={<Transaction />} />
                 
                 <Route path="*" element={
                     <Box sx={{ 
