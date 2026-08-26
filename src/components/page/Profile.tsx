@@ -214,7 +214,40 @@ export default function Profile() {
                     </Box>
                 </Box>
             </Box>
-            <Dialog open={activeModal !== null} onClose={handleCloseModal} fullWidth maxWidth="xs" >
+            <Dialog open={activeModal !== null} onClose={handleCloseModal} fullWidth maxWidth="xs" 
+                sx={{
+                    "& input:-webkit-autofill": {
+                        color: "#F8FAFC",
+                        WebkitBoxShadow: "0 0 0 1000px #141e34 inset",
+                        WebkitTextFillColor: "#F8FAFC",
+                        caretColor: "#F8FAFC",
+                        transition: "background-color 5000s ease-in-out 0s",
+                    },   
+                    "& .MuiPaper-root": {
+                        bgcolor: "#141e34",
+                        color: "#F8FAFC",
+                        backgroundImage: "none",
+                    },
+                    "& .MuiFormLabel-root": {
+                        color: "rgba(248, 250, 252, 0.7)", 
+                    },
+                    "& .MuiFormLabel-root.Mui-focused": {
+                        color: "#F8FAFC",
+                    },
+                    "& .MuiInputBase-input": {
+                        color: "#F8FAFC",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "rgba(248, 250, 252, 0.3)",
+                    },
+                    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#F8FAFC",
+                    },
+                    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#F8FAFC",
+                    },
+                }}
+            >
                 <DialogTitle sx={{ pb: 1 }}>
                     {activeModal === "deposit" && "Поповнити баланс"}
                     {activeModal === "withdraw" && "Зняти кошти"}
